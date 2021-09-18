@@ -1,4 +1,4 @@
-# 加密传输的Cosmos-sdk chain（created by starport）
+# 加密传输的Cosmos-sdk chain（created by starport v0.17）
 **planet** is a blockchain built using Cosmos SDK and Tendermint and created with [Starport](https://github.com/tendermint/starport).
 ## 主要工作
 1. 在packet传输中使用base64加密Content字段
