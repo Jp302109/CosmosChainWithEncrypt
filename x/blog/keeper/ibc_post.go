@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"encoding/base64"
 	"errors"
 	"strconv"
@@ -12,6 +14,19 @@ import (
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 )
+
+func AesDecryptCFB(encrypted []byte, key []byte) (decrypted []byte) {
+	block, _ := aes.NewCipher(key)
+	if len(encrypted) < aes.BlockSize {
+		panic("ciphertext too short")
+	}
+	iv := encrypted[:aes.BlockSize]
+	encrypted = encrypted[aes.BlockSize:]
+
+	stream := cipher.NewCFBDecrypter(block, iv)
+	stream.XORKeyStream(encrypted, encrypted)
+	return encrypted
+}
 
 // TransmitIbcPostPacket transmits the packet over IBC with the specified source port and source channel
 func (k Keeper) TransmitIbcPostPacket(
@@ -71,8 +86,10 @@ func (k Keeper) TransmitIbcPostPacket(
 // OnRecvIbcPostPacket processes packet reception
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
 	// validate packet data upon receiving
-	decoded, _:= base64.StdEncoding.DecodeString(data.Content)
-	decodestr := string(decoded)
+	decoded, _ := base64.StdEncoding.DecodeString(data.Content)
+	key := []byte("ABCDEFGHIJKLMNOP")
+	decrypted := AesDecryptCFB(decoded, key)
+	decodestr := string(decrypted)
 	if err := data.ValidateBasic(); err != nil {
 		return packetAck, err
 	}
