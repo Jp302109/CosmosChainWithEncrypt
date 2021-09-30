@@ -3,7 +3,6 @@ package keeper
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"encoding/base64"
 	"errors"
 	"strconv"
 
@@ -86,10 +85,10 @@ func (k Keeper) TransmitIbcPostPacket(
 // OnRecvIbcPostPacket processes packet reception
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
 	// validate packet data upon receiving
-	decoded, _ := base64.StdEncoding.DecodeString(data.Content)
-	key := []byte("ABCDEFGHIJKLMNOP")
-	decrypted := AesDecryptCFB(decoded, key)
-	decodestr := string(decrypted)
+	//decoded, _ := base64.StdEncoding.DecodeString(data.Content)
+	//key := []byte("ABCDEFGHIJKLMNOP")
+	//decrypted := AesDecryptCFB(decoded, key)
+	//decodestr := string(decoded)
 	if err := data.ValidateBasic(); err != nil {
 		return packetAck, err
 	}
@@ -98,7 +97,7 @@ func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet,
 		types.Post{
 			Creator: packet.SourcePort + "-" + packet.SourceChannel + "-" + data.Creator,
 			Title:   data.Title,
-			Content: decodestr,
+			Content: data.Content,
 		},
 	)
 	packetAck.PostID = strconv.FormatUint(id, 10)

@@ -44,6 +44,7 @@ func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost)
 	base64msg := base64.StdEncoding.EncodeToString(encrypted)
 	packet.Content = base64msg
 	packet.Creator = msg.Sender
+
 	// Transmit the packet
 	err := k.TransmitIbcPostPacket(
 		ctx,
